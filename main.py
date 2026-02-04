@@ -20,7 +20,7 @@ class Monarch:
     client = ''
 
     def __init__(self, username, password):
-        r = requests.post('https://api.monarchmoney.com/auth/login/', json={
+        r = requests.post('https://api.monarch.com/auth/login/', json={
             'username': username,
             'password': password,
             'supports_mfa': True,
@@ -38,7 +38,7 @@ class Monarch:
             "Authorization": f"Token {self.token}"
         }
         self.client = GraphqlClient(
-            endpoint='https://api.monarchmoney.com/graphql', headers=self.headers)
+            endpoint='https://api.monarch.com/graphql', headers=self.headers)
 
     def get_accounts(self):
         operation_name = 'GetAccountsPage'
