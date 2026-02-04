@@ -124,6 +124,8 @@ def read_args():
                         help="Print downloaded json data")
     parser.add_argument("--account", nargs="?", default="",
                         help="Specific account")
+    parser.add_argument("--rebalance", action="store_true",
+                        help="Force rebalance")
     return parser.parse_args()
 
 
@@ -422,13 +424,13 @@ for account in accounts_to_eval:
     print_allocation(allocation)
 
     rec = ""
-    if needs_invest(allocation):
+    if needs_invest(allocation) and not args.rebalance:
         rec = f"Found money in {account}\n" + \
             pretty_rec(invest(account_config[account], allocation), allocation["none"])
         print(rec)
         if not args.local:
             send_notification(f"Found money in {account}", rec)
-    elif needs_rebalance(allocation, account_config[account]['allocation']):
+    elif needs_rebalance(allocation, account_config[account]['allocation']) or args.rebalance:
         rec = f"{account} needs rebalance!\n" + \
             pretty_rec(rebalance(account_config[account], allocation), allocation["none"])
         print(rec)
