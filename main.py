@@ -30,8 +30,21 @@ class Monarch:
             "Client-Platform": "web",
             'Content-Type': 'application/json'
         })
-        # print(r.content)
-        self.token = json.loads(r.content)['token']
+        if r.status_code != 200:
+            print(f"Error: Login failed with status {r.status_code}")
+            print(f"Response: {r.content}")
+        
+        try:
+            response_json = json.loads(r.content)
+            if 'token' in response_json:
+                self.token = response_json['token']
+            elif 'detail' in response_json:
+                raise ValueError(f"Monarch auth failed: {response_json['detail']}")
+            else:
+                raise ValueError(f"Monarch auth failed, unexpected response: {r.content}")
+        except json.JSONDecodeError:
+            raise ValueError(f"Monarch auth failed, invalid JSON response (status {r.status_code}): {r.content}")
+
         if args.debug:
             print(self.token)
         self.headers = {
@@ -407,6 +420,7 @@ invests = monarch.get_all_holdings()
 accounts = monarch.get_accounts()
 
 if args.debug:
+    os.makedirs('./out', exist_ok=True)
     with open('./out/accounts.json', "w") as file:
         file.write(json.dumps(accounts, indent=4, sort_keys=True, default=str))
     with open('./out/invests.json', "w") as file:
